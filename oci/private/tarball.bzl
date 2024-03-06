@@ -45,9 +45,9 @@ attrs = {
             used to load the image into the local engine when using `bazel run` on this oci_tarball.
 
             By default, we look for `docker` or `podman` on the PATH, and run the `load` command.
-            
+
             > Note that rules_docker has an "incremental loader" which is faster than oci_tarball by design.
-            > Something similar can be done for oci_tarball. 
+            > Something similar can be done for oci_tarball.
             > See [loader.sh](/examples/incremental_loader/loader.sh) and explanation about [how](/examples/incremental_loader/README.md) it works.
 
             See the _run_template attribute for the script that calls this loader tool.
@@ -61,9 +61,9 @@ attrs = {
         default = Label("//oci/private:tarball_run.sh.tpl"),
         doc = """ \
               The template used to load the container when using `bazel run` on this oci_tarball.
-              
+
               See the `loader` attribute to replace the tool which is called.
-              Please reference the default template to see available substitutions. 
+              Please reference the default template to see available substitutions.
         """,
         allow_single_file = True,
     ),
@@ -95,10 +95,14 @@ def _tarball_impl(ctx):
         substitutions = substitutions,
     )
 
+    posix = ctx.toolchains["@rules_sh//sh/posix:toolchain_type"]
+    action_env["PATH"] = ":".join(posix.paths)
+
     ctx.actions.run(
         executable = util.maybe_wrap_launcher_for_windows(ctx, executable),
         inputs = [image, repo_tags, executable],
         outputs = [tarball],
+        env = action_env,
         tools = [yq_bin],
         mnemonic = "OCITarball",
         progress_message = "OCI Tarball %{label}",
@@ -130,6 +134,7 @@ oci_tarball = rule(
     toolchains = [
         "@bazel_tools//tools/sh:toolchain_type",
         "@aspect_bazel_lib//lib:yq_toolchain_type",
+        "@rules_sh//sh/posix:toolchain_type",
     ],
     executable = True,
 )

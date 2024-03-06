@@ -180,6 +180,9 @@ def _oci_image_impl(ctx):
         # This one is for Windows Git MSys
         action_env["MSYS_NO_PATHCONV"] = "1"
 
+    posix = ctx.toolchains["@rules_sh//sh/posix:toolchain_type"]
+    action_env["PATH"] = ":".join(posix.paths)
+
     ctx.actions.run(
         inputs = inputs,
         arguments = [args],
@@ -206,5 +209,6 @@ oci_image = rule(
         "@rules_oci//oci:crane_toolchain_type",
         "@rules_oci//oci:registry_toolchain_type",
         "@aspect_bazel_lib//lib:jq_toolchain_type",
+        "@rules_sh//sh/posix:toolchain_type",
     ],
 )
