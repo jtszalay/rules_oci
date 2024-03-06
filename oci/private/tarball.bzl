@@ -95,6 +95,7 @@ def _tarball_impl(ctx):
         substitutions = substitutions,
     )
 
+    action_env = {}
     posix = ctx.toolchains["@rules_sh//sh/posix:toolchain_type"]
     action_env["PATH"] = ":".join(posix.paths)
 
