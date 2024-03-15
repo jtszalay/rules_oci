@@ -36,7 +36,7 @@ _IMAGE_REFERENCE_ATTRS = {
 }
 
 SCHEMA1_ERROR = """\
-The registry sent a manifest with schemaVersion=1. 
+The registry sent a manifest with schemaVersion=1.
 This commonly occurs when fetching from a registry that needs the Docker-Distribution-API-Version header to be set.
 """
 
@@ -45,7 +45,7 @@ Unable to retrieve the manifest. This could be due to authentication problems or
 """
 
 CURL_FALLBACK_WARNING = """\
-The use of Curl fallback is deprecated and is set to be removed in version 2.0. 
+The use of Curl fallback is deprecated and is set to be removed in version 2.0.
 For more details, refer to: https://github.com/bazel-contrib/rules_oci/issues/456
 """
 
@@ -198,7 +198,7 @@ def _find_platform_manifest(index_mf, platform_wanted):
     return None
 
 def _oci_pull_impl(rctx):
-    au = authn.new(rctx, _config_path(rctx))
+    au = authn.new(rctx, _config_path(rctx), rctx.attr.environ)
     downloader = _create_downloader(rctx, au)
 
     manifest, size, digest = downloader.download_manifest(rctx.attr.identifier, "manifest.json")
@@ -266,6 +266,7 @@ oci_pull = repository_rule(
                 doc = "Name given for the image target, e.g. 'image'",
                 mandatory = True,
             ),
+            "environ": attr.string_dict(doc = "Environment variables to set when pulling the image"),
         },
     ),
     environ = authn.ENVIRON,

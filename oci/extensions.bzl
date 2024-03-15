@@ -15,7 +15,8 @@ pull = tag_class(attrs = {
             Exactly one of `tag` and `digest` must be set.
             Since tags are mutable, this is not reproducible, so a warning is printed."""),
     "reproducible": attr.bool(doc = """Set to False to silence the warning about reproducibility when using `tag`.""", default = True),
-    "config": attr.label(doc = "Label to a .docker/config.json file")
+    "config": attr.label(doc = "Label to a .docker/config.json file"),
+    "environ": attr.string_dict(doc = "Environment variables to set when pulling the image"),
 })
 
 toolchains = tag_class(attrs = {
@@ -39,6 +40,7 @@ def _oci_extension(module_ctx):
                 tag = pull.tag,
                 reproducible = pull.reproducible,
                 config = pull.config,
+                environ = pull.environ,
                 is_bzlmod = True,
             )
         for toolchains in mod.tags.toolchains:
