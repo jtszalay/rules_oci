@@ -198,6 +198,7 @@ def _find_platform_manifest(index_mf, platform_wanted):
     return None
 
 def _oci_pull_impl(rctx):
+    print(rctx.attr.environ)
     au = authn.new(rctx, _config_path(rctx), rctx.attr.environ)
     downloader = _create_downloader(rctx, au)
 
@@ -297,7 +298,7 @@ def _oci_alias_impl(rctx):
     if not rctx.attr.platforms and not rctx.attr.platform:
         fail("One of 'platforms' or 'platform' must be set")
 
-    au = authn.new(rctx, _config_path(rctx))
+    au = authn.new(rctx, _config_path(rctx), rctx.attr.environ)
     downloader = _create_downloader(rctx, au)
 
     available_platforms = []
@@ -387,6 +388,7 @@ oci_alias = repository_rule(
             "bzlmod_repository": attr.string(
                 doc = "For error reporting. When called from a module extension, provides the original name of the repository prior to mapping",
             ),
+            "environ": attr.string_dict(doc = "Environment variables to set when pulling the image"),
         },
     ),
     environ = authn.ENVIRON,

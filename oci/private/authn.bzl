@@ -96,9 +96,12 @@ def _fetch_auth_via_creds_helper(rctx, raw_host, helper_name, environ = None):
         executable,
         content = """\
 #!/usr/bin/env bash
+export AWS_PROFILE={}
+export AWS_SDK_LOAD_CONFIG=true
 exec "docker-credential-{}" get <<< "$1"
-        """.format(helper_name),
+        """.format(environ["AWS_PROFILE"], helper_name),
     )
+    print(environ)
     result = rctx.execute([rctx.path(executable), raw_host], environment = environ)
     if result.return_code:
         fail("credential helper failed: \nSTDOUT:\n{}\nSTDERR:\n{}".format(result.stdout, result.stderr))
@@ -123,6 +126,7 @@ def _get_auth(rctx, state, registry):
     pattern = {}
     config = state["config"]
     environ = state["environ"]
+    print(state)
 
     # first look into per registry credHelpers if it exists
     if "credHelpers" in config:
@@ -163,8 +167,9 @@ def _get_auth(rctx, state, registry):
                         "password": auth_val["password"],
                     }
 
-    if "credsStore" in config and len(pattern.keys()) == 0:
-        pattern = _fetch_auth_via_creds_helper(rctx, registry, config["credsStore"], environ = environ)
+    # if "credsStore" in config and len(pattern.keys()) == 0:
+    #     print("HERE")
+    #     pattern = _fetch_auth_via_creds_helper(rctx, registry, config["credsStore"], environ = environ)
 
     # cache the result so that we don't do this again unnecessarily.
     state["auth"][registry] = pattern
@@ -230,8 +235,10 @@ def _new_auth(rctx, config_path = None, environ = None):
     config = {}
     if config_path:
         config = json.decode(rctx.read(config_path))
+    print(environ)
     if not environ:
         environ = {}
+    print(environ)
     state = {
         "config": config,
         "auth": {},
