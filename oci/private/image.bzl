@@ -170,6 +170,8 @@ def _oci_image_impl(ctx):
         args.add(ctx.attr.workdir, format = "--workdir=%s")
 
     action_env = {}
+    posix = ctx.toolchains["@rules_sh//sh/posix:toolchain_type"]
+    action_env["PATH"] = ":".join(posix.paths)
 
     # Windows: Don't convert arguments like --entrypoint=/some/bin to --entrypoint=C:/msys64/some/bin
     if ctx.target_platform_has_constraint(ctx.attr._windows_constraint[platform_common.ConstraintValueInfo]):
@@ -206,5 +208,6 @@ oci_image = rule(
         "@rules_oci//oci:crane_toolchain_type",
         "@rules_oci//oci:registry_toolchain_type",
         "@aspect_bazel_lib//lib:jq_toolchain_type",
+        "@rules_sh//sh/posix:toolchain_type",
     ],
 )

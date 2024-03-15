@@ -95,10 +95,15 @@ def _tarball_impl(ctx):
         substitutions = substitutions,
     )
 
+    action_env = {}
+    posix = ctx.toolchains["@rules_sh//sh/posix:toolchain_type"]
+    action_env["PATH"] = ":".join(posix.paths)
+
     ctx.actions.run(
         executable = util.maybe_wrap_launcher_for_windows(ctx, executable),
         inputs = [image, repo_tags, executable],
         outputs = [tarball],
+        env = action_env,
         tools = [yq_bin],
         mnemonic = "OCITarball",
         progress_message = "OCI Tarball %{label}",
@@ -130,6 +135,7 @@ oci_tarball = rule(
     toolchains = [
         "@bazel_tools//tools/sh:toolchain_type",
         "@aspect_bazel_lib//lib:yq_toolchain_type",
+        "@rules_sh//sh/posix:toolchain_type",
     ],
     executable = True,
 )
